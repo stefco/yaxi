@@ -6,13 +6,14 @@ from typing import List, Dict, Tuple, Any
 from xml.etree.ElementTree import Element, fromstring
 
 
-class XmlDict(Element):
+class YaxElement(Element):
     """
-    Initialize from an ``xml.etree.ElementTree.Element. For example, load using
-    ``XmlDict(xml.etree.ElementTree.fromstring(...))`` or from the root element
-    of a file with ``XmlDict(xml.etree.ElementTree.parse(...).getroot())``.
+    Initialize from an ``xml.etree.ElementTree.Element. For example, load from
+    string using ``YaxElement(xml.etree.ElementTree.fromstring(...))`` or from
+    file with ``YaxElement(xml.etree.ElementTree.parse(...).getroot())``.
     Provides a ``fromstring`` method for the former case and ``from_json``
-    and ``to_json`` methods for serializing as JSON-compatible dicts.
+    and ``to_json`` methods for serializing as JSON-compatible dicts (in cases
+    where that's needed).
     """
 
     def __init__(self, el: Element):
@@ -43,12 +44,14 @@ class XmlDict(Element):
         >>> x['What']['Param':('name',):'FAR'] == \
         ...     [p for p in x.find('What').findall('Param')
         ...      if p.get('name') == 'FAR']
+        True
 
         You can also combine multiple indexing operations into a single
         attempt:
         >>> x['What', 'Param':('name',):'FAR', 0] == \
         ...     [p for p in x.find('What').findall('Param')
         ...      if p.get('name') == 'FAR'][0]
+        True
         """
         if isinstance(idx, tuple):
             res = self
@@ -59,8 +62,10 @@ class XmlDict(Element):
             res = self.findall(idx.start)
             if (isinstance(idx.stop, tuple) and
                     all(isinstance(i, str) for i in idx.stop)):
+                q = idx.step if isinstance(idx.step, tuple) else (idx.step,)
                 return [r for r in res
-                        if any(r.get(i) == idx.step for i in idx.stop)]
+                        if any(r.get(i) == j
+                               for i in idx.stop for j in q)]
             return res[:idx.stop:idx.step]
         if isinstance(idx, str):
             return self.find(idx)
@@ -95,7 +100,7 @@ class Attempt:
     found.
     """
 
-    def __init__(self, el: XmlDict):
+    def __init__(self, el: YaxElement):
         self.el = el
         self.val = None
         self.err = None

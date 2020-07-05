@@ -1,6 +1,6 @@
 "Yet Another Xml Interface; terse queries, flexible validation, no deps."
 
-__version__ = '0.2.1'
+__version__ = '0.2.2'
 
 from typing import List, Dict, Tuple, Any
 from xml.etree.ElementTree import Element, fromstring as fromstr, tostring
@@ -206,7 +206,7 @@ class StoredAttempt:
             res = YaxElement.__call__(res, self.attrib)
         elif self.gettext:
             res = res.text
-        if self.outtype is not None:
+        if self.cast is not None:
             res = self.cast(res)
         return res
 

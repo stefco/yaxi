@@ -1,9 +1,9 @@
-"Yet Another Xml Interface; terse queries using slices and calls with no deps."
+"Yet Another Xml Interface; terse queries, flexible validation, no deps."
 
-__version__ = '0.2.0'
+__version__ = '0.2.1'
 
 from typing import List, Dict, Tuple, Any
-from xml.etree.ElementTree import Element, fromstring as fromstr
+from xml.etree.ElementTree import Element, fromstring as fromstr, tostring
 
 
 class YaxElement(Element):
@@ -99,6 +99,9 @@ class YaxElement(Element):
     @classmethod
     def fromstring(cls, string: str):
         return cls(fromstr(string))
+
+    def tostring(self, *args, **kwargs):
+        return tostring(self)
 
     def to_json(self) -> Tuple[str, str, Dict[str, Any], List[tuple]]:
         return (self.tag, self.text, self.attrib, [c.to_json() for c in self])
